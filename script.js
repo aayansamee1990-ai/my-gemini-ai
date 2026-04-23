@@ -2,11 +2,14 @@
 let API_KEY = localStorage.getItem('gemini_api_key');
 
 if (!API_KEY) {
-    API_KEY = prompt("AIzaSyDkCsWwddSCK3brb5gG4MqSJU4Af4fGek0:");
+    API_KEY = prompt("Please enter your Google API Key (It will be saved safely in your browser):");
     if (API_KEY) {
         localStorage.setItem('gemini_api_key', API_KEY);
     }
 }
+
+// Updated 2026 Model Name
+const MODEL_NAME = "gemini-3.1-flash-preview";
 
 // Updated 2026 Model Name
 const MODEL_NAME = "gemini-3.1-flash-preview";
