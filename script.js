@@ -1,4 +1,4 @@
-const API_KEY = "AIzaSyDkCsWwddSCK3brb5gG4MqSJU4Af4fGek0"; // Paste your Google API Key here
+const API_KEY = "AIzaSyD7jxZGITPRy92Q_QDB8pZC0d2H5AuQFZk"; // Paste your Google API Key here
 
 const chatBox = document.getElementById('chat-box');
 const input = document.getElementById('user-input');
@@ -61,16 +61,45 @@ function renderSidebar() {
 sendBtn.onclick = async () => {
     const text = input.value.trim();
     if (!text) return;
-
-    // If no chat exists, make one
     if (!currentChatId) startNewChat();
 
     const currentChat = chats.find(c => c.id === currentChatId);
+    if (currentChat.messages.length === 0) currentChat.title = text.substring(0, 20) + "...";
 
-    // If this is the first message, rename the chat title!
-    if (currentChat.messages.length === 0) {
-        currentChat.title = text.substring(0, 20) + "...";
+    currentChat.messages.push({ sender: "user", text: text });
+    chatBox.innerHTML += `<div class="message user-msg"><b>You:</b> ${text}</div>`;
+    input.value = "";
+    statusText.innerText = "Status: Thinking...";
+    saveChatsToStorage();
+
+    try {
+        // Correct 2026 Endpoint
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${API_KEY}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ contents: [{ parts: [{ text: text }] }] })
+        });
+
+        const data = await response.json();
+        
+        if (data.candidates && data.candidates[0].content) {
+            const aiText = data.candidates[0].content.parts[0].text;
+            currentChat.messages.push({ sender: "ai", text: aiText });
+            chatBox.innerHTML += `<div class="message ai-msg"><b>AI:</b> ${aiText}</div>`;
+        } else {
+            // This shows you the ACTUAL error from Google
+            const errorInfo = data.error ? data.error.message : "Check console (F12)";
+            chatBox.innerHTML += `<div class="message ai-msg"><b>Error:</b> ${errorInfo}</div>`;
+        }
+        
+        statusText.innerText = "Status: Online";
+        saveChatsToStorage();
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+    } catch (err) {
+        statusText.innerText = "Status: Connection Failed";
     }
+};
 
     // Save User Message
     currentChat.messages.push({ sender: "user", text: text });
