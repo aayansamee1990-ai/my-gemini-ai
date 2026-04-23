@@ -1,5 +1,15 @@
-const API_KEY = "AIzaSyD7jxZGITPRy92Q_QDB8pZC0d2H5AuQFZk"; // Paste your Google API Key here
+// This looks for a key saved in your browser, NOT on GitHub.
+let API_KEY = localStorage.getItem('gemini_api_key');
 
+if (!API_KEY) {
+    API_KEY = prompt("AIzaSyDkCsWwddSCK3brb5gG4MqSJU4Af4fGek0:");
+    if (API_KEY) {
+        localStorage.setItem('gemini_api_key', API_KEY);
+    }
+}
+
+// Updated 2026 Model Name
+const MODEL_NAME = "gemini-3.1-flash-preview";
 const chatBox = document.getElementById('chat-box');
 const input = document.getElementById('user-input');
 const sendBtn = document.getElementById('send-btn');
